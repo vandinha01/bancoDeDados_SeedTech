@@ -1,15 +1,18 @@
 -- select seed tech 
 USE seed_tech;
 
+-- ATENÇÃO
+-- Qual é a quantidade total de dispositivos esp32 cadastrados no sistema?
+
 -- Quantos dispositivos ESP32 existem por armazém? (6)
 SELECT arm.nome "Armazen",
 arm.localizacao "Localização",
-arm.capacidade_kg "Capacidade",
+CONCAT(arm.capacidade_kg, ' kg') "Capacidade",
 COUNT(esp.nome) "Dispositivo"
 FROM armazens arm
 INNER JOIN esp32_dispositivos esp on arm.id = esp.armazem_id
 GROUP BY arm.nome, arm.localizacao, arm.capacidade_kg, esp.nome
-ORDER BY arm.nome;
+ORDER BY esp.nome DESC;
 
 
 
@@ -85,7 +88,9 @@ GROUP BY esp.nome, esp.status, ults.id
 ORDER BY esp.nome;
 -- -------------------------------------------------------------------------------------------------------
 -- Qual foi a temperatura e umidade registradas pelos sensores DHT22 nos últimos 7 dias? 
-
-
+-- Qual foi a maior e menor luminosidade registrada nos últimos 30 dias?
+-- Qual é a distância média registrada pelos sensores ultrassônicos por armazém?
+-- 	Quais armazéns possuem capacidade acima de 400,000.00 kg e quantos dispositivos estão instalados neles?
+-- Qual é a variação de temperatura e umidade ao longo do tempo em um armazém específico?
 
 
