@@ -38,13 +38,13 @@ Caso algum dispositivo ainda não tenha leituras, ele deve aparecer mesmo assim 
 -- 3.
 SELECT esp.nome "Dispositivo",
 UPPER(esp.status) "Status do Dispositivo",
-CONCAT('LDR ', ldrs.id) "Sensor LDR",
-CONCAT(ldrd.luminosidade, ' lx') "Luminosidade",
-ldrd.timestamp "Momento do Registro LDR"
+CONCAT('LDR ', MAX(ldrs.id)) "Sensor LDR",
+CONCAT(MAX(ldrd.luminosidade), ' lx') "Luminosidade",
+MAX(ldrd.timestamp) "Momento do Registro LDR"
 FROM esp32_dispositivos esp 
 INNER JOIN ldr_dados ldrd on esp.id = ldrd.ldr_sensor_id
 INNER JOIN ldr_sensores ldrs on ldrd.id = ldrs.esp32_dispositivo_id
-GROUP BY esp.nome, esp.status, CONCAT('LDR ', ldrs.id), ldrd.luminosidade, ldrd.timestamp
+GROUP BY esp.nome, esp.status, ldrs.id
 ORDER BY esp.nome;
 
 -- 4.
@@ -63,8 +63,14 @@ ORDER BY esp.nome;
 -- 5.
 SELECT esp.nome "Dispositivo",
 esp.status "Status do Dispositivo",
-CONCAT(ults.id, 'M') "Ultrassonico",
-ultd.distancia ,
-ultd.impacto ,
-ultd.timestamp "Momento do Registro Ultrassonico" 
-;
+MAX(ults.id) "Ultrassonico",
+CONCAT( MAX(ultd.distancia), ' M') "Distancia",
+MAX(ultd.impacto) "Impacto",
+MAX(ultd.timestamp) "Momento do Registro Ultrassonico"
+FROM esp32_dispositivos esp 
+INNER JOIN ultrassonico_sensores ults on esp.id = ults.esp32_dispositivo_id
+INNER JOIN ultrassonico_dados ultd on ults.id = ultd.ultrassonico_sensor_id
+GROUP BY esp.nome, esp.status, ults.id
+ORDER BY esp.nome;
+
+
