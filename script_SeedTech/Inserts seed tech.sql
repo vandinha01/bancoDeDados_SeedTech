@@ -1,3 +1,27 @@
+-- =====================================================================
+-- INSERÇÃO DE DADOS INICIAIS PARA TESTE (Vanda se for testar esse lembra de usar estes inserts
+-- =====================================================================
+
+-- Armazéns
+INSERT INTO armazens (nome, localizacao, capacidade_kg) VALUES ('Silo Principal A', 'Fazenda 1, Setor Leste', 50000.00); -- ID 1
+INSERT INTO armazens (nome, localizacao, capacidade_kg) VALUES ('Silo Secundário B', 'Fazenda 1, Setor Oeste', 25000.00); -- ID 2
+
+-- Dispositivos ESP32
+INSERT INTO esp32_dispositivos (nome, armazem_id) VALUES ('Gateway Central A', 1); -- ID 1
+INSERT INTO esp32_dispositivos (nome, armazem_id, status) VALUES ('Módulo Umidade B1', 2, 'manutencao'); -- ID 2
+INSERT INTO esp32_dispositivos (nome, armazem_id) VALUES ('Monitor Impacto A2', 1); -- ID 3
+
+-- Sensores DHT22
+INSERT INTO dht22_sensores (esp32_dispositivo_id, localizacao_detalhada) VALUES (1, 'Superior, Centro'); -- ID 1 (temp/umid)
+INSERT INTO dht22_sensores (esp32_dispositivo_id, localizacao_detalhada) VALUES (2, 'Medio, Parede Sul'); -- ID 2 (temp/umid)
+
+-- Sensores LDR
+INSERT INTO ldr_sensores (esp32_dispositivo_id, localizacao_detalhada) VALUES (1, 'Base, Janela Principal'); -- ID 1 (ldr)
+
+-- Sensores Ultrassônicos
+INSERT INTO ultrassonico_sensores (esp32_dispositivo_id, localizacao_detalhada) VALUES (3, 'Lateral Norte'); -- ID 1 (ultrassonico)
+
+
 -- =================================================================================
 -- INSERTS para a tabela armazens (50 registros)
 -- =================================================================================
