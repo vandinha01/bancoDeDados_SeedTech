@@ -5,10 +5,10 @@
 USE seed_tech;
 
 -- Define o delimitador para permitir o uso de ';' dentro dos blocos CREATE PROCEDURE/FUNCTION
-DELIMITER //
+DELIMITER $$
 
 -- =====================================================================
--- FUNÇÕES (7 Funções)
+-- FUNÇÕES (6 Funções Escalares)
 -- =====================================================================
 
 -- 1. FUNÇÃO: Obter_Ultima_Temperatura (Escalar)
@@ -26,7 +26,7 @@ BEGIN
     LIMIT 1;
     
     RETURN ultima_temp;
-END //
+END $$
 
 -- 2. FUNÇÃO: Obter_Media_Umidade_Armazem (Escalar)
 -- Retorna a umidade média das últimas 24 horas para todos os sensores DHT22 de um armazém.
@@ -44,7 +44,7 @@ BEGIN
       AND D.timestamp >= DATE_SUB(NOW(), INTERVAL 24 HOUR);
       
     RETURN IFNULL(media_umidade, 0.00);
-END //
+END $$
 
 -- 3. FUNÇÃO: Contar_Sensores_Ativos_Armazem (Escalar)
 -- Retorna o número de sensores ativos em um determinado armazém.
@@ -60,7 +60,7 @@ BEGIN
       AND status = 'ativo';
       
     RETURN total_ativos;
-END //
+END $$
 
 -- 4. FUNÇÃO: Obter_Nivel_Luz_Medio_Ultima_Hora (Escalar)
 -- Retorna a luminosidade média registrada na última hora para um sensor LDR.
@@ -76,7 +76,7 @@ BEGIN
       AND timestamp >= DATE_SUB(NOW(), INTERVAL 1 HOUR);
       
     RETURN IFNULL(media_lux, 0.00);
-END //
+END $$
 
 -- 5. FUNÇÃO: Calcular_Taxa_Impacto_Armazem (Escalar)
 -- Retorna a porcentagem de leituras que indicaram impacto nas últimas 48 horas em um armazém.
@@ -110,7 +110,7 @@ BEGIN
     END IF;
     
     RETURN taxa_impacto;
-END //
+END $$
 
 -- 6. FUNÇÃO: Obter_Distancia_Minima_Recente (Escalar)
 -- Retorna a menor distância registrada (indicando maior proximidade/nível) nas últimas 6 horas para um sensor ultrassônico.
@@ -126,14 +126,33 @@ BEGIN
       AND timestamp >= DATE_SUB(NOW(), INTERVAL 6 HOUR);
       
     RETURN IFNULL(dist_min, 9999.99); -- Retorna um valor alto se não houver dados
-END //
-
-
-
+END $$
 
 -- =====================================================================
--- PROCEDURES (7 Procedures)
+-- PROCEDURES (8 Procedures, Total de 14 Objetos)
 -- =====================================================================
+
+-- 7. PROCEDURE: SP_Listar_Dados_DHT22_Armazem (Tabela)
+-- Retorna os últimos 100 registros de temperatura/umidade de um armazém.
+-- (Substitui a função TABLE anterior que causava erro)
+CREATE PROCEDURE SP_Listar_Dados_DHT22_Armazem (
+    IN p_armazem_id INT
+)
+BEGIN
+    SELECT 
+        D.id AS registro_id,
+        D.temperatura,
+        D.umidade,
+        D.timestamp AS timestamp_leitura,
+        S.localizacao_detalhada AS sensor_detalhe
+    FROM dht22_dados D
+    JOIN dht22_sensores S ON D.dht22_sensor_id = S.id
+    JOIN esp32_dispositivos E ON S.esp32_dispositivo_id = E.id
+    WHERE E.armazem_id = p_armazem_id
+    ORDER BY D.timestamp DESC
+    LIMIT 100;
+END $$
+
 
 -- 8. PROCEDURE: SP_Inserir_Leitura_DHT22 (INSERT)
 -- Procedure principal para a API inserir dados de Temperatura e Umidade.
@@ -145,7 +164,7 @@ CREATE PROCEDURE SP_Inserir_Leitura_DHT22 (
 BEGIN
     INSERT INTO dht22_dados (dht22_sensor_id, temperatura, umidade)
     VALUES (p_dht22_sensor_id, p_temperatura, p_umidade);
-END //
+END $$
 
 -- 9. PROCEDURE: SP_Inserir_Leitura_LDR (INSERT)
 -- Procedure principal para a API inserir dados de Luminosidade.
@@ -156,7 +175,7 @@ CREATE PROCEDURE SP_Inserir_Leitura_LDR (
 BEGIN
     INSERT INTO ldr_dados (ldr_sensor_id, luminosidade)
     VALUES (p_ldr_sensor_id, p_luminosidade);
-END //
+END $$
 
 -- 10. PROCEDURE: SP_Inserir_Leitura_Ultrassonico (INSERT)
 -- Procedure principal para a API inserir dados de Distância/Impacto.
@@ -171,7 +190,7 @@ BEGIN
 
     INSERT INTO ultrassonico_dados (ultrassonico_sensor_id, distancia, impacto)
     VALUES (p_ultrassonico_sensor_id, p_distancia, v_impacto);
-END //
+END $$
 
 -- 11. PROCEDURE: SP_Atualizar_Status_Dispositivo (UPDATE)
 -- Atualiza o status do dispositivo (ex: de 'ativo' para 'manutencao').
@@ -183,7 +202,7 @@ BEGIN
     UPDATE esp32_dispositivos
     SET status = p_novo_status
     WHERE id = p_dispositivo_id;
-END //
+END $$
 
 -- 12. PROCEDURE: SP_Remover_Armazem (DELETE)
 -- Remove um armazém e seus dispositivos/sensores associados.
@@ -196,7 +215,7 @@ BEGIN
     -- DELETE FROM dht22_dados ...; DELETE FROM ldr_dados ...; etc.
     DELETE FROM armazens
     WHERE id = p_armazem_id;
-END //
+END $$
 
 -- 13. PROCEDURE: SP_Obter_Ultimas_10_Leituras_Dispositivo (SELECT)
 -- Retorna as 10 últimas leituras de todos os tipos para um dispositivo específico.
@@ -227,7 +246,7 @@ BEGIN
     WHERE S.esp32_dispositivo_id = p_dispositivo_id
     ORDER BY D.timestamp DESC
     LIMIT 10;
-END //
+END $$
 
 -- 14. PROCEDURE: SP_Registrar_Novo_Sensor_LDR (INSERT)
 -- Cria um novo sensor LDR e o associa a um dispositivo ESP32 existente.
@@ -238,7 +257,7 @@ CREATE PROCEDURE SP_Registrar_Novo_Sensor_LDR (
 BEGIN
     INSERT INTO ldr_sensores (esp32_dispositivo_id, localizacao_detalhada)
     VALUES (p_esp32_dispositivo_id, p_localizacao_detalhada);
-END //
+END $$
 
 -- Restaura o delimitador padrão
 DELIMITER ;
