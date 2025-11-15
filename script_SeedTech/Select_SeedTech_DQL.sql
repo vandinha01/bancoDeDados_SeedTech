@@ -1,9 +1,11 @@
 -- select seed tech 
 USE seed_tech;
 
--- ATENÇÃO
--- Qual é a quantidade total de dispositivos esp32 cadastrados no sistema?
 
+-- Qual é a quantidade total de dispositivos esp32 cadastrados no sistema?
+SELECT COUNT(esp.id) "Dispositivo"
+FROM esp32_dispositivos esp;
+-- -------------------------------------------------------------------------------------------------------
 -- Quantos dispositivos ESP32 existem por armazém? (6)
 SELECT arm.nome "Armazen",
 arm.localizacao "Localização",
@@ -13,8 +15,7 @@ FROM armazens arm
 INNER JOIN esp32_dispositivos esp on arm.id = esp.armazem_id
 GROUP BY arm.nome, arm.localizacao, arm.capacidade_kg, esp.nome
 ORDER BY esp.nome DESC;
-
-
+-- -------------------------------------------------------------------------------------------------------
 
 /*Liste todos os armazéns com seus dispositivos ESP32 e o sensor DHTT22, 
 incluindo armazéns que não possuem dispositivos ou sensores.*/
@@ -87,10 +88,39 @@ INNER JOIN ultrassonico_dados ultd on ults.id = ultd.ultrassonico_sensor_id
 GROUP BY esp.nome, esp.status, ults.id
 ORDER BY esp.nome;
 -- -------------------------------------------------------------------------------------------------------
+-- ATENÇÃO
 -- Qual foi a temperatura e umidade registradas pelos sensores DHT22 nos últimos 7 dias? 
--- Qual foi a maior e menor luminosidade registrada nos últimos 30 dias?
+SELECT CONCAT('DHT22 ', dhts.id) "DHT22", 
+dhts.localizacao_detalhada "Localização", 
+dhtd.temperatura "Temperatura", 
+dhtd.umidade "Umidade",
+dhtd.timestamp "Momento do Registro do Sensor"
+FROM dht22_sensores dhts
+INNER JOIN dht22_dados dhtd ON dhts.id = dhtd.dht22_sensor_id
+ORDER BY dhtd.timestamp DESC;
+
+-- Qual foi a maior e menor luminosidade registrada nos últimos 30 dias? 
+
+-- -------------------------------------------------------------------------------------------------------
+-- Qual é a tendência de temperatura (média) em cada armazém?
+SELECT arm.nome "Armazen",
+CONCAT('DHT ', dhts.id)"DHT22", 
+AVG(dhtd.temperatura) "Temperatura", 
+dhtd.timestamp "Momento do Registro do Sensor"
+FROM armazens arm 
+INNER JOIN dht22_sensores dhts ON arm.id = dhts.esp32_dispositivo_id 
+INNER JOIN dht22_dados dhtd ON dhts.id = dhtd.dht22_sensor_id
+GROUP BY arm.nome, dhts.id, dhtd.temperatura, dhtd.timestamp
+ORDER BY AVG(dhtd.temperatura) DESC;
+-- -------------------------------------------------------------------------------------------------------
+-- Qual é a tendência de umidade (média) em cada armazém?
 -- Qual é a distância média registrada pelos sensores ultrassônicos por armazém?
--- 	Quais armazéns possuem capacidade acima de 400,000.00 kg e quantos dispositivos estão instalados neles?
+-- Quais armazéns possuem capacidade acima de 400,000.00 kg e quantos dispositivos estão instalados neles?
 -- Qual é a variação de temperatura e umidade ao longo do tempo em um armazém específico?
+-- Quais sensores DHT22 registraram umidade abaixo de 40% nos últimos 10 dias?
+-- Quais dispositivos ESP32 possuem status diferente de 'ativo'?  
+-- Qual é a variação de luminosidade (máxima e mínima) registrada por cada sensor LDR?
+
+
 
 
