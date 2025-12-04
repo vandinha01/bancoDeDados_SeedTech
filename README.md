@@ -72,32 +72,3 @@ Para configurar o banco de dados **SeedTech** localmente:
     ```
 5.  **Populando o BD (Opcional):**
     Se houver, execute o script de dados de exemplo (`sample_data.sql` ou similar).
-
----
-
-## 🔍 Exemplos de Consultas Chave
-
-A seguir, um exemplo de consulta avançada para extrair dados ambientais críticos do sistema, focada na temperatura média por armazém:
-
-```sql
-### Consulta: Temperatura Média por Armazém
-
-SELECT 
-    arm.nome AS "Armazém",
-    arm.localizacao AS "Localização do Armazém", 
-    CONCAT('DHT22 ', dhts.id) AS "Sensor DHT22 ID", 
-    dhts.localizacao_detalhada AS "Localização do Sensor",
-    ROUND(AVG(dhtd.temperatura), 2) AS "Temperatura Média (°C)", 
-    MAX(dhtd.timestamp) AS "Último Registro"
-FROM 
-    armazens arm 
-INNER JOIN 
-    esp32_dispositivos esp ON arm.id = esp.armazens_id 
-INNER JOIN 
-    dht22_sensores dhts ON esp.id = dhts.esp32_dispositivo_id 
-INNER JOIN 
-    dht22_dados dhtd ON dhts.id = dhtd.dht22_sensor_id 
-GROUP BY 
-    arm.nome, arm.localizacao, dhts.id, dhts.localizacao_detalhada
-ORDER BY 
-    "Temperatura Média (°C)" DESC;
