@@ -27,17 +27,7 @@ Este projeto foi desenvolvido utilizando as seguintes tecnologias:
 
 * **SGBD:** **MySQL**
 * **Linguagem de Modelagem:** SQL
-* **Ferramentas:** Cliente SQL (MySQL Workbench, DBeaver, etc.)
-
----
-
-## 🗺️ Diagrama do Esquema (Modelo ER)
-
-O diagrama abaixo ilustra todas as entidades (tabelas), seus atributos, e os relacionamentos definidos pelo projeto, incluindo as cardinalidades.
-
-* ***Lembre-se de salvar seu diagrama com o nome `schema.png` dentro da pasta `docs/` no seu repositório.***
-
-![Diagrama do Esquema Relacional](docs/schema.png)
+* **Ferramentas:** Cliente SQL (MySQL Workbench)
 
 ---
 
@@ -91,9 +81,6 @@ A seguir, um exemplo de consulta avançada para extrair dados ambientais crític
 
 ```sql
 ### Consulta: Temperatura Média por Armazém
-
--- Esta consulta retorna a temperatura média registrada por cada sensor DHT22 
--- em um armazém específico, permitindo a identificação de pontos quentes.
 
 SELECT 
     arm.nome AS "Armazém",
